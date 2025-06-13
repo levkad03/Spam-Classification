@@ -196,3 +196,9 @@ cython_debug/
 
 # Dataset
 spam-detection-dataset
+
+# Wandb runs
+wandb
+
+# Model checkpoints
+models

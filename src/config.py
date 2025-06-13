@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 @dataclass
 class Config:
-    model_name: str = "bert-base-uncased"
+    model_name: str = "distilbert-base-uncased"
     max_length: int = 128
     batch_size: int = 32
     epochs: int = 20
