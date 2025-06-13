@@ -6,6 +6,10 @@ from config import Config
 
 def get_tokenized_dataset(config: Config):
     dataset = load_from_disk("spam-detection-dataset")
+
+    label2id = {"not_spam": 0, "spam": 1}
+    dataset = dataset.map(lambda x: {"label": label2id[x["label"]]})
+
     tokenizer = AutoTokenizer.from_pretrained(config.model_name)
 
     def tokenize(example):
