@@ -11,7 +11,6 @@ def get_tokenized_dataset(config: Config):
     def tokenize(example):
         return tokenizer(
             example["text"],
-            padding="max_length",
             truncation=True,
             max_length=config.max_length,
         )

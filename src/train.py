@@ -1,4 +1,10 @@
-from transformers import BertForSequenceClassification, Trainer, TrainingArguments
+from transformers import (
+    AutoTokenizer,
+    BertForSequenceClassification,
+    DataCollatorWithPadding,
+    Trainer,
+    TrainingArguments,
+)
 
 from config import Config
 from dataset import get_tokenized_dataset
@@ -7,6 +13,9 @@ from dataset import get_tokenized_dataset
 def train():
     config = Config()
     dataset = get_tokenized_dataset(config)
+
+    tokenizer = AutoTokenizer.from_pretrained(config.model_name)
+    data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
     model = BertForSequenceClassification.from_pretrained(
         config.model_name, num_labels=2
@@ -28,6 +37,7 @@ def train():
         args=training_args,
         train_dataset=dataset["train"],
         eval_dataset=dataset["test"],
+        data_collator=data_collator,
     )
 
     trainer.train()
