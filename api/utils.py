@@ -2,17 +2,15 @@ import logging
 from typing import Any, Dict
 
 import torch
-from constants import device, label_names, model, tokenizer
-from fastapi import HTTPException
+from constants import label_names
+from fastapi import FastAPI, HTTPException
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def load_model():
-    global model, tokenizer, device
-
+def load_model(app: FastAPI):
     try:
         model_path = "models/bert_spam_model"
         logger.info(f"Loading model from {model_path}")
@@ -24,6 +22,10 @@ def load_model():
         model = model.to(device)
         model.eval()
 
+        app.state.model = model
+        app.state.tokenizer = tokenizer
+        app.state.device = device
+
         logger.info(f"Model loaded successfully on {device}")
 
     except Exception as e:
@@ -31,7 +33,11 @@ def load_model():
         raise e
 
 
-def predict_text(text: str) -> Dict[str, Any]:
+def predict_text(app: FastAPI, text: str) -> Dict[str, Any]:
+    model = getattr(app.state, "model", None)
+    tokenizer = getattr(app.state, "tokenizer", None)
+    device = getattr(app.state, "device", None)
+
     if model is None or tokenizer is None:
         raise HTTPException(status_code=500, detail="Model not loaded")
 

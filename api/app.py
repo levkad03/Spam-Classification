@@ -2,8 +2,8 @@ import logging
 from contextlib import asynccontextmanager
 
 import uvicorn
-from constants import device, label_names, model, tokenizer
-from fastapi import FastAPI, HTTPException
+from constants import label_names
+from fastapi import FastAPI, HTTPException, Request
 from schemas import PredictionResponse, TextInput
 
 from utils import load_model, predict_text
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     logger.info("Starting application")
 
-    load_model()
+    load_model(app)
     yield
 
     logger.info("Shutting down application")
@@ -36,15 +36,18 @@ def read_root():
 
 
 @app.post("/predict")
-async def predict_single(input_data: TextInput):
-    result = predict_text(input_data.text)
+async def predict_single(request: Request, input_data: TextInput):
+    result = predict_text(request.app, input_data.text)
 
     return PredictionResponse(**result)
 
 
 @app.get("/model/info")
-async def get_model_info():
-    global model, tokenizer, device
+async def get_model_info(request: Request):
+    model = getattr(request.app.state, "model", None)
+    tokenizer = getattr(request.app.state, "tokenizer", None)
+    device = getattr(request.app.state, "device", None)
+
     if model is None:
         return HTTPException(status_code=500, detail="Model not loaded")
 
