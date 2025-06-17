@@ -2,12 +2,13 @@ import logging
 from typing import Any, Dict
 
 import torch
-from constants import label_names
 from fastapi import FastAPI, HTTPException
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+label_names = ["not_spam", "spam"]
 
 
 def load_model(app: FastAPI):

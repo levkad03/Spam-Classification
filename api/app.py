@@ -2,7 +2,6 @@ import logging
 from contextlib import asynccontextmanager
 
 import uvicorn
-from constants import label_names
 from fastapi import FastAPI, HTTPException, Request
 from schemas import (
     BatchedPredictionResponse,
@@ -11,7 +10,7 @@ from schemas import (
     TextInput,
 )
 
-from utils import load_model, predict_text
+from utils import label_names, load_model, predict_text
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
