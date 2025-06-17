@@ -1,39 +1,14 @@
 import logging
 from contextlib import asynccontextmanager
 
-import torch
 import uvicorn
 from fastapi import FastAPI
-from transformers import AutoModelForSequenceClassification, AutoTokenizer
+from schemas import PredictionResponse, TextInput
+
+from utils import load_model, predict_text
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-model = None
-tokenizer = None
-device = None
-label_names = ["not_spam", "spam"]
-
-
-def load_model():
-    global model, tokenizer, device
-
-    try:
-        model_path = "models/bert_spam_model"
-        logger.info(f"Loading model from {model_path}")
-
-        tokenizer = AutoTokenizer.from_pretrained(model_path)
-        model = AutoModelForSequenceClassification.from_pretrained(model_path)
-
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        model = model.to(device)
-        model.eval()
-
-        logger.info(f"Model loaded successfully on {device}")
-
-    except Exception as e:
-        logger.error(f"Failed to load model: {str(e)}")
-        raise e
 
 
 @asynccontextmanager
@@ -57,6 +32,13 @@ app = FastAPI(
 @app.get("/")
 def read_root():
     return {"message": "Welcome to the Spam Detection API!"}
+
+
+@app.post("/predict")
+def predict_single(input_data: TextInput):
+    result = predict_text(input_data.text)
+
+    return PredictionResponse(**result)
 
 
 if __name__ == "__main__":
