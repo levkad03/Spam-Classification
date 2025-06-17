@@ -35,19 +35,25 @@ app = FastAPI(
 
 
 @app.get("/")
-def read_root():
+async def read_root() -> dict[str, str]:
     return {"message": "Welcome to the Spam Detection API!"}
 
 
 @app.post("/predict")
-async def predict_single(request: Request, input_data: TextInput):
+async def predict_single(
+    request: Request, input_data: TextInput, response_model=PredictionResponse
+):
     result = predict_text(request.app, input_data.text)
 
     return PredictionResponse(**result)
 
 
 @app.post("/predict/batch")
-async def predict_batch(request: Request, input_data: BatchTextInput):
+async def predict_batch(
+    request: Request,
+    input_data: BatchTextInput,
+    response_model=BatchedPredictionResponse,
+):
     predictions = []
 
     for text in input_data.texts:
@@ -64,7 +70,7 @@ async def predict_batch(request: Request, input_data: BatchTextInput):
 
 
 @app.get("/model/info")
-async def get_model_info(request: Request):
+async def get_model_info(request: Request) -> dict[str, str | int | list[str]]:
     model = getattr(request.app.state, "model", None)
     tokenizer = getattr(request.app.state, "tokenizer", None)
     device = getattr(request.app.state, "device", None)

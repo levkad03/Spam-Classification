@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 label_names = ["not_spam", "spam"]
 
 
-def load_model(app: FastAPI):
+def load_model(app: FastAPI) -> None:
     try:
         model_path = "models/bert_spam_model"
         logger.info(f"Loading model from {model_path}")
