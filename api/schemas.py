@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 
 from pydantic import BaseModel, Field
 
@@ -14,3 +14,13 @@ class PredictionResponse(BaseModel):
     label: str
     confidence: float
     probabilities: Dict[str, float]
+
+
+class BatchTextInput(BaseModel):
+    texts: List[str] = Field(
+        ..., min_items=1, max_items=100, description="List of texts to classify"
+    )
+
+
+class BatchedPredictionResponse(BaseModel):
+    predictions: List[PredictionResponse]

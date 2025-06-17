@@ -4,7 +4,12 @@ from contextlib import asynccontextmanager
 import uvicorn
 from constants import label_names
 from fastapi import FastAPI, HTTPException, Request
-from schemas import PredictionResponse, TextInput
+from schemas import (
+    BatchedPredictionResponse,
+    BatchTextInput,
+    PredictionResponse,
+    TextInput,
+)
 
 from utils import load_model, predict_text
 
@@ -40,6 +45,23 @@ async def predict_single(request: Request, input_data: TextInput):
     result = predict_text(request.app, input_data.text)
 
     return PredictionResponse(**result)
+
+
+@app.post("/predict/batch")
+async def predict_batch(request: Request, input_data: BatchTextInput):
+    predictions = []
+
+    for text in input_data.texts:
+        try:
+            result = predict_text(app=request.app, text=text)
+            predictions.append(PredictionResponse(**result))
+        except Exception as e:
+            logger.error(f"Error processing text: {text[:50]}... Error: {str(e)}")
+            raise HTTPException(
+                status_code=500, detail=f"Batch prediction failed: {str(e)}"
+            )
+
+    return BatchedPredictionResponse(predictions=predictions)
 
 
 @app.get("/model/info")
