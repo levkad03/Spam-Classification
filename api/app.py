@@ -2,7 +2,8 @@ import logging
 from contextlib import asynccontextmanager
 
 import uvicorn
-from fastapi import FastAPI
+from constants import device, label_names, model, tokenizer
+from fastapi import FastAPI, HTTPException
 from schemas import PredictionResponse, TextInput
 
 from utils import load_model, predict_text
@@ -35,10 +36,25 @@ def read_root():
 
 
 @app.post("/predict")
-def predict_single(input_data: TextInput):
+async def predict_single(input_data: TextInput):
     result = predict_text(input_data.text)
 
     return PredictionResponse(**result)
+
+
+@app.get("/model/info")
+async def get_model_info():
+    global model, tokenizer, device
+    if model is None:
+        return HTTPException(status_code=500, detail="Model not loaded")
+
+    return {
+        "model_type": model.__class__.__name__,
+        "device": str(device),
+        "labels": label_names,
+        "max_length": 128,
+        "tokenizer_vocab_size": len(tokenizer) if tokenizer else None,
+    }
 
 
 if __name__ == "__main__":
