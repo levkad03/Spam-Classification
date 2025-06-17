@@ -2,6 +2,9 @@
 
 This repository contains the code of the **Spam classification model**.
 
+## Technology stack
+[![My Skills](https://skillicons.dev/icons?i=pytorch,py,fastapi)](https://skillicons.dev)
+
 ## Model overview
 Base model: **distilbert-base-uncased** ([link to the model](https://huggingface.co/distilbert/distilbert-base-uncased))
 The model was *finetuned* on [spam-detection-dataset](https://huggingface.co/datasets/Deysi/spam-detection-dataset)
