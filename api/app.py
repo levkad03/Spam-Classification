@@ -39,21 +39,15 @@ async def read_root() -> dict[str, str]:
     return {"message": "Welcome to the Spam Detection API!"}
 
 
-@app.post("/predict")
-async def predict_single(
-    request: Request, input_data: TextInput, response_model=PredictionResponse
-):
+@app.post("/predict", response_model=PredictionResponse)
+async def predict_single(request: Request, input_data: TextInput):
     result = predict_text(request.app, input_data.text)
 
     return PredictionResponse(**result)
 
 
-@app.post("/predict/batch")
-async def predict_batch(
-    request: Request,
-    input_data: BatchTextInput,
-    response_model=BatchedPredictionResponse,
-):
+@app.post("/predict/batch", response_model=BatchedPredictionResponse)
+async def predict_batch(request: Request, input_data: BatchTextInput):
     predictions = []
 
     for text in input_data.texts:
